@@ -1,0 +1,87 @@
+{% extends "../root.html" %}
+
+{% block head %}
+{% if article.description %}
+<meta name="description" content="{{ article.description }}" />{% endif %}
+{% if article.is_indexed %}
+<meta name="robots" content="noindex">{% endif %}
+<link rel="canonical" href="https://{{ request.get_host }}{{ article.get_absolute_url}}">
+{% if article.head %}{{ article.head | safe }}{% endif %}
+{% endblock head %}
+
+{% block content %}
+<div id="content" class="centered-content">
+    {% if article.no_container %}
+    {{ content | safe }}
+    {% else %}
+    <div class="article-header card-top m3-label-large">
+        <h1 class="m3-headline-large">{{ article.title }}</h1>
+        <span class="card-time">{{ article.created | date:"c" }}</span>
+        {% if tags %}<div class="tags">
+            {% for tag in tags %}<span>{{ tag.1 }}</span>{% endfor %}</div>
+        {% endif %}
+        <a href="{{ article.author.get_absolute_url }}">{{ article.author.username }}</a>
+        {% if article.is_draft %}<span>DRAFT</span>{% endif %}
+    </div>
+    <div class="article">
+        {{ content | safe }}
+    </div>
+    {% endif %}
+
+    <h2 id="comments">Comments</h2>
+
+    <form class="comment-form" method="post">
+        {% csrf_token %}
+        <div>
+            <div>
+                <label for="email" class="m3-label-large">Email</label>
+                <input type="email" name="email" id="email" required />
+            </div>
+            <div>
+                <label for="name" class="m3-label-large">Name</label>
+                <input type="text" name="name" id="name" required />
+            </div>
+        </div>
+        <div>
+            <label for="body" class="m3-label-large">Body</label>
+            <textarea name="content" id="body" required></textarea>
+        </div>
+        <input type="submit" value="Submit" class="m3-label-large">
+    </form>
+
+    <div class="comments">
+        {% for comment in comments %}
+        <div class="comment card m3-surface-container">
+            <img src="https://seccdn.libravatar.org/avatar/{{ comment.email_hash }}?d=retro" width="48px" height="48px"
+                alt="{{comment.name}}'s Libravatar" />
+            <div>
+                <div>
+                    <span class="m3-label-large">{{ comment.name }}</span> at
+                    <span class="card-time m3-label-large">{{ comment.created | date:"c" }}</span>
+                </div>
+                {{ comment.content | linebreaksbr}}
+            </div>
+        </div>
+        {% empty %}
+        No comments here.
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}
+
+{% block edit %}
+<div>
+    <a href="{% url 'admin:index' %}blog/article/{{ article.id }}/change/">Edit</a>
+    <a href="{% url 'admin:index' %}blog/comment/?article={{ article.id }}">Comments</a>
+</div>
+{% endblock edit %}
+
+{% block end_nav %}
+<a href="{% url 'articles' %}">Articles</a>
+{% endblock end_nav %}
+
+{% if article.script %}
+{% block scripts %}
+{{ script | safe }}
+{% endblock scripts %}
+{% endif %}

@@ -1,0 +1,82 @@
+{% extends "../root.html" %}
+
+{% block head %}
+<style>
+    a[disabled] {
+        pointer-events: none;
+        color: var(--m3-outline);
+        text-decoration: underline;
+    }
+</style>
+{% if page_obj.number == 1 %}
+<link rel="canonical" href="https://{{ request.get_host }}{% url 'articles' %}" />{% else %}
+<link rel="canonical"
+    href="{{ request.scheme }}://{{ request.get_host }}{% url 'articles' %}?page={{ page_obj.number }}" />{% endif %}
+{% if page_obj.has_previous %}
+<link rel="prev"
+    href="https://{{ request.get_host }}{% url 'articles' %}{% if page_obj.number != 2 %}?page={{ page_obj.previous_page_number }}{% endif %}" />
+{% endif %}
+{% if page_obj.has_next %}
+<link rel="next" href="https://{{ request.get_host }}{% url 'articles' %}?page={{ page_obj.next_page_number }}" />
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div id="content" class="centered-content">
+    <h1 class="m3-headline-large">Articles</h1>
+    {{ content }}
+
+    <div class="articles">
+        {% for article in object_list %}
+        <a href="{{ article.get_absolute_url }}" class="article-card">
+            <div>
+                <p class="card-title" style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                    {{article.title}}{% if article.is_draft %}<span class="m3-label-large">DRAFT</span>{% endif %}</p>
+                {% if article.description %}
+                <p>{{article.description}}</p>
+                {% else %}
+                <p><i>Description unintentionally left blank</i></p>
+                {% endif %}
+                <div>
+                    <span class="card-time">{{article.created|date:"c"}}</span>
+                    <span class="card-author">{{ article.author.username }}</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        Wow! No articles?
+        {% endfor %}
+    </div>
+    <div class="pagination m3-label-large" style="display: flex; justify-content: center; margin-top: 16px;">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+            <a href="{% url 'articles' %}">&laquo;</a>
+            <a
+                href="{% if page_obj.number == 2 %}{% url 'articles' %}{% else %}?page={{ page_obj.previous_page_number }}{% endif %}">&lt;</a>
+            {% else %}
+            <a disabled>&laquo;</a>
+            <a disabled>&lt;</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+            {% else %}
+            <a disabled>&gt;</a>
+            <a disabled>&raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+{% endblock content %}
+
+{% block edit %}
+<div>
+    <a href="{% url 'admin:index' %}">Admin</a>
+    <a href="{% url 'admin:index' %}blog/article/add">New Post</a>
+</div>
+{% endblock %}

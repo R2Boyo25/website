@@ -1,0 +1,90 @@
+/* Resources
+- https://github.com/dempfi/ayu/blob/master/ayu-dark.sublime-color-scheme (list of colors)
+- https://github.com/dempfi/ayu/blob/master/images/dark-separator.png (example)
+- https://raw.githubusercontent.com/ayu-theme/ayu-colors/master/colors.svg (less comprehensive list of colors)
+*/
+
+.hljs-keyword, .hljs-operator {
+    color: #
+}
+
+.hljs-built_in
+
+.hljs-type
+
+.hljs-literal
+.hljs-number
+
+
+.hljs-punctuation
+
+.hljs-property
+
+.hljs-regexp
+.hljs-string
+.hljs-char.escape
+
+.hljs-subst
+.hljs-symbol
+
+.hljs-variable
+
+.hljs-variable.language
+.hljs-variable.constant
+
+.hljs-title
+                                      
+.hljs-title.class
+.hljs-title.class.inherited
+
+.hljs-title.function
+.hljs-title.function.invoke
+.hljs-params
+
+.hljs-comment, .hljs-doctag {
+    color: #acb6bf8c;
+    font-style: italic;
+}
+
+/* Meta stuff */
+
+.hljs-meta
+.hljs-meta.prompt
+.hljs-meta keyword
+.hljs-meta string
+
+/* Tags, attributes, configs */
+
+.hljs-section
+.hljs-tag
+.hljs-name
+.hljs-attr
+.hljs-attribute {}
+
+/* Markup */
+
+.hljs-bullet {}
+.hljs-code {}
+.hljs-emphasis {}
+.hljs-strong {}
+.hljs-formula {}
+.hljs-link {}
+.hljs-quote {}
+
+/* CSS */
+
+.hljs-selector-tag {}
+.hljs-selector-id {}
+.hljs-selector-class {}
+.hljs-selector-attr {}
+.hljs-selector-pseudo {}
+
+/* Template Languages */
+
+.hljs-template-tag
+.hljs-template-variable
+
+/* Diff */
+
+.hljs-addition {}
+.hljs-deletion {}

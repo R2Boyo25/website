@@ -1,0 +1,14 @@
+kazani.dev, :80 {
+	root * /static
+
+	encode gzip
+
+	@exists file
+	handle @exists {
+		file_server
+	}
+
+	handle {
+		reverse_proxy index-html:3000
+	}
+}
