@@ -15,16 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+import subprocess
+from pathlib import Path
+
 from django.contrib.sitemaps.views import sitemap
 from django.contrib.sitemaps import Sitemap
 from django.contrib.syndication.views import Feed
 from django.contrib import admin
-from django.http import HttpRequest, HttpResponse
+from django.http import FileResponse, HttpRequest, HttpResponse
 from django.urls import path, re_path, include, register_converter, reverse
 from django.shortcuts import get_object_or_404
 from django.conf.urls.static import static
+
 from blog.views import get_article
-from blog.models import Article
+from blog.models import Article, Upload
 from blog import converters
 from kazani import settings
 
@@ -72,6 +76,30 @@ class BlogFeed(Feed):
 register_converter(converters.Base32Converter, "b32")
 
 
+def get_page(request: HttpRequest) -> HttpResponse | FileResponse:
+    if (
+        article := Article.objects.filter(
+            page_url=request.get_full_path().rstrip("/") + "/"
+        ).first()
+    ) is not None:
+        return get_article(
+            request,
+            0,
+            0,
+            0,
+            article.id,
+            "",
+        )
+
+    upload = get_object_or_404(Upload, path=request.get_full_path().rstrip("/"))
+
+    return FileResponse(
+        upload.content.open("rb"),
+        subprocess.check_output(["file", "-ib", upload.content.path]).strip(),
+        filename=Path(upload.content.name).name,
+    )
+
+
 urlpatterns = [
     path("kaz/__admin_/", admin.site.urls),
     path("articles/", include("blog.urls")),
@@ -84,17 +112,5 @@ urlpatterns = [
     path("feed/", BlogFeed()),
     # path("profiles/<b32:id>", views.profile_page, name="profile"),
     path("", get_root, name="index"),
-    re_path(
-        "^.*$",
-        lambda request: get_article(
-            request,
-            0,
-            0,
-            0,
-            get_object_or_404(
-                Article, page_url=request.get_full_path().rstrip("/") + "/"
-            ).id,
-            "",
-        ),
-    ),
+    re_path("^.*$", get_page),
 ]

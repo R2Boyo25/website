@@ -1,25 +1,28 @@
 import hashlib
 import json
-from typing import Any
+from typing import Any, cast
 
 from django.db.models.query import QuerySet
 from django.shortcuts import redirect
 from django.http import HttpRequest
-from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic.list import ListView
 from django.contrib.auth.models import AnonymousUser
 
 from blog.render import render_page
+from kazani.models import User
 from .models import Article, Comment
 from .forms import CommentForm
 
 
-# def index(request: HttpRequest, page: int = 1):  # pylint: disable=unused-argument
-#    return HttpResponse(Article.objects.all())
-
-
 class ArticleListView(ListView):
+    """
+    Displays a list of articles.
+    Excludes hidden pages and the root page.
+
+    TODO: templates
+    """
+
     model = Article
     paginate_by = 10
     ordering = "-created"
@@ -27,7 +30,7 @@ class ArticleListView(ListView):
     def get_queryset(self) -> QuerySet[Any]:
         if (
             not isinstance(self.request.user, AnonymousUser)
-            and self.request.user.is_superuser
+            and cast(User, self.request.user).is_superuser
         ):
             return super().get_queryset().exclude(page_url="/")
 
@@ -60,6 +63,12 @@ class ArticleListView(ListView):
 def get_article(
     request: HttpRequest, year: int, month: int, day: int, id: int, slug: str
 ):  # pylint: disable=unused-argument,redefined-builtin
+    """
+    Returns a rendered article.
+
+    TODO: templates
+    """
+
     article = get_object_or_404(Article, id=id)
 
     seo = {"@context": "https://schema.org", **article.get_seo(request)}
@@ -82,6 +91,8 @@ def get_article(
             "seo": json.dumps(seo, indent="\t"),
             "title": article.title,
             "script": f"<script>{article.script}</script>",
+            "comments_enabled": article.comments_enabled,
+            "unapproved_comments": len(article.comments.filter(active=False)),
             "comments": [
                 {
                     "name": comment.name,
@@ -100,10 +111,14 @@ def get_article(
 def redirect_date_article(
     request: HttpRequest, year: int, month: int, day: int, id: int
 ):  # pylint: disable=unused-argument,redefined-builtin
+    "Redirect to the full article url from just the date and id."
+
     return redirect_article_id(request, id)
 
 
 def redirect_article_id(
     request: HttpRequest, id: int
 ):  # pylint: disable=unused-argument,redefined-builtin
+    "Redirect to the full article url from just the id."
+
     return redirect(get_object_or_404(Article, id=id).get_absolute_url())

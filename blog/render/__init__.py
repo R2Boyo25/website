@@ -8,7 +8,7 @@ import marko
 import marko.element
 import marko.inline
 
-from blog.models import Article
+from blog.models import Article, Upload
 
 
 class Italic(TypedDict):
@@ -253,6 +253,15 @@ class HTMLRenderer:
                 return f'<a href="{html.escape(url)}">{html.escape(url)}</a>'
 
             case {"type": "image", "source": source, "alt": alt}:
+                if source.startswith("$"):
+                    source = Upload.objects.filter(ident=source[1:]).first()
+
+                    if source is not None:
+                        source = source.path
+
+                    else:
+                        source = ""
+
                 return f'<img src="{html.escape(source)}" alt="{self.flatten_inline(alt)}"/>'
 
             case {"type": "raw", "content": content}:
@@ -371,6 +380,10 @@ class HTMLRenderer:
 
 
 def marko_inline_to_ir(element: marko.element.Element | str) -> InlineNode | None:
+    """
+    Convert a marko inline element or string into an inline node or None
+    """
+
     if isinstance(element, str):
         return element
 
@@ -397,6 +410,11 @@ def marko_inline_to_ir(element: marko.element.Element | str) -> InlineNode | Non
         return InlineCode({"type": "code", "content": element.children})
 
     if isinstance(element, marko.inline.InlineHTML):
+        # if isinstance(element.children, Sequence):
+        #     raise TypeError(
+        #         "why is the child of an inline html element a sequence of markdown elements??????"
+        #     )
+
         return Raw({"type": "raw", "content": element.children})
 
     if isinstance(element, marko.inline.AutoLink):
@@ -418,6 +436,9 @@ def marko_inline_to_ir(element: marko.element.Element | str) -> InlineNode | Non
         if not isinstance(element, str):
             return Raw({"type": "raw", "content": "<br />"})
 
+        if not isinstance(element.children, str):
+            raise TypeError("why is the child a list of markdown elements")
+
         return Raw(
             {"type": "raw", "content": element.children.replace("\n", "<br />").strip()}
         )
@@ -428,6 +449,8 @@ def marko_inline_to_ir(element: marko.element.Element | str) -> InlineNode | Non
 def convert_inline(
     element: marko.inline.InlineElement | marko.block.BlockElement,
 ) -> Sequence[InlineNode]:
+    """Convert a list of marko inline elements into a list of inline nodes."""
+
     return [
         el
         for el in [marko_inline_to_ir(el) for el in element.children]
@@ -436,6 +459,8 @@ def convert_inline(
 
 
 def convert_blocks(element: marko.block.BlockElement) -> list[Node]:
+    """Convert a list of marko block elements into a list of nodes."""
+
     return [
         marko_to_ir(el)
         for el in element.children
@@ -444,6 +469,8 @@ def convert_blocks(element: marko.block.BlockElement) -> list[Node]:
 
 
 def marko_to_ir(element: marko.element.Element) -> Node:
+    """Convert a marko block element into a Node."""
+
     if isinstance(element, marko.block.BlockElement):
         if isinstance(element, marko.block.Document):
             return cast(Node, convert_blocks(element))
@@ -507,6 +534,8 @@ def marko_to_ir(element: marko.element.Element) -> Node:
 
 
 def parse(content: str, content_type: Article.ContentType) -> IRType:
+    """Parse article content using the metadata from the article."""
+
     if content_type == Article.ContentType.JSON:
         return json.loads(content)
 
@@ -520,6 +549,8 @@ def parse(content: str, content_type: Article.ContentType) -> IRType:
 
 
 def render_page(content: str, article: Article) -> str:
+    """Render article content using the metadata from the article."""
+
     parsed = parse(content, Article.ContentType(article.content_type))
 
     return HTMLRenderer(parsed).to_html(article)

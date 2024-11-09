@@ -16,9 +16,13 @@ class Article(models.Model):
     title = models.CharField(max_length=256)
     slug = models.SlugField()
     author = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    comments_enabled = models.BooleanField(
+        default=True,
+        help_text="Whether to display the form to submit comments and to display accepted comments.",
+    )
 
     page_url = models.CharField(
-        max_length=256,
+        max_length=512,
         null=True,
         blank=True,
         default=None,
@@ -173,3 +177,30 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return f"{self.content!r} by {self.name}"
+
+
+class Upload(models.Model):
+    ident = models.CharField(
+        max_length=512,
+        help_text="Identifier for the image. Used to auto-generate the url if it's not specified (/media/ident). Also used to refer to it in Markdown.",
+    )
+    path = models.CharField(
+        max_length=512,
+        help_text="Absolute path to serve file at (/media/image.png, etc.)",
+        blank=True,
+    )
+    content = models.FileField(upload_to="uploads/")
+
+    def __str__(self) -> str:
+        return self.content.name
+
+    def save(self, *args, **kwargs) -> None:
+        if self.path is None or self.path.strip() == "":
+            self.path = f"/media/{self.ident.strip()}"
+
+        self.ident = self.ident.strip()
+
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self) -> str:
+        return self.path

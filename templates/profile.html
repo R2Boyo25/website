@@ -1,11 +1,13 @@
 {% extends "root.html" %}
 {% block content %}
-<div id="content" class="centered-content">
-    <div class="article-header card-top m3-label-large">
-        <h1 class="m3-headline-large">{{ user.first_name }} "{{ user.username }}" {{ user.last_name }}</h1>
-    </div>
-    <div class="article">
-        {{ content | safe }}
+<div class="centered">
+    <div id="content" class="content">
+        <div class="article-header card-top m3-label-large">
+            <h1 class="m3-headline-large">{{ user.first_name }} "{{ user.username }}" {{ user.last_name }}</h1>
+        </div>
+        <div class="article">
+            {{ content | safe }}
+        </div>
     </div>
 </div>
 {% endblock content %}

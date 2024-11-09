@@ -95,7 +95,7 @@
     <script type="text/javascript">
         document.querySelector("#hljs").addEventListener("load", () => hljs.highlightAll());
 
-        document.querySelectorAll(".card-time").forEach((el) => el.textContent = Intl.DateTimeFormat([], { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(el.textContent)));
+        document.querySelectorAll(".card-time").forEach((el) => { let a = "numeric"; let b = "2-digit"; el.textContent = Intl.DateTimeFormat([], { year: a, month: "short", day: a, hour: b, minute: b, hour12: false }).format(new Date(el.textContent)) });
     </script>
     {% endcompress %}
     {% block scripts %}

@@ -1,8 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from .models import Article, Comment
-
-# from .widgets import HtmlEditor
+from .models import Article, Comment, Upload
 
 
 @admin.register(Article)
@@ -11,10 +9,6 @@ class ArticleAdmin(ModelAdmin):
     readonly_fields = ("created", "modified")
 
     prepopulated_fields = {"slug": ["title"]}
-
-    # widgets = {
-    #     "content": HtmlEditor(attrs={"style": "width: 90%; height: 100%;"}),
-    # }
 
 
 @admin.register(Comment)
@@ -26,3 +20,8 @@ class CommentAdmin(ModelAdmin):
 
     def approve_comments(self, request, queryset):
         queryset.update(active=True)
+
+
+@admin.register(Upload)
+class UploadAdmin(ModelAdmin):
+    pass

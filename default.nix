@@ -5,6 +5,7 @@ let
     python312
     lessc
     poetry
+    file
   ];
  
 in

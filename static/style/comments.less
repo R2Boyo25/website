@@ -1,0 +1,56 @@
+.comments {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.comment {
+    margin-inline: -25px;
+    gap: 12px;
+}
+
+.comment>img {
+    border-radius: 12px;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 24px;
+    margin-inline: -25px;
+}
+
+.comment-form input:not([type="submit"]),
+.comment-form textarea {
+    background-color: var(--m3-surface-container);
+    border: unset;
+    color: var(--m3-on-surface);
+
+    padding: 8px;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+.comment-form textarea {
+    height: calc(3em + 16px * 2);
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.comment-form input[type="submit"] {
+    display: flex;
+    border: unset;
+    background-color: var(--m3-secondary-container);
+    color: var(--m3-on-secondary-container);
+    height: 40px;
+    padding-inline: 24px;
+    border-radius: 100vmax;
+    align-items: center;
+    justify-content: center;
+    max-width: 40ch;
+    cursor: pointer;
+    margin-top: 4px;
+    align-self: end;
+}
