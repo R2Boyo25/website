@@ -90,6 +90,7 @@ def get_article(
             "content": render_page(article.content, article),
             "seo": json.dumps(seo, indent="\t"),
             "title": article.title,
+            "head": article.head,
             "script": f"<script>{article.script}</script>",
             "comments_enabled": article.comments_enabled,
             "unapproved_comments": len(article.comments.filter(active=False)),

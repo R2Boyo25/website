@@ -157,6 +157,21 @@ Node = (
 IRType = Sequence[Node]
 
 
+def transform_url(url: str) -> str:
+    """Handle links to uploads."""
+
+    if url.startswith("$"):
+        upload = Upload.objects.filter(ident=url[1:]).first()
+
+        if upload is not None:
+            return upload.path
+
+        else:
+            return ""
+
+    return url
+
+
 class HTMLRenderer:
     """An HTML renderer for my AST format."""
 
@@ -247,22 +262,13 @@ class HTMLRenderer:
                 return f":{name}:"
 
             case {"type": "link", "url": url, "label": label}:
-                return f'<a href="{html.escape(url)}">{self.flatten_inline(label)}</a>'
+                return f'<a href="{html.escape(transform_url(url))}">{self.flatten_inline(label)}</a>'
 
             case {"type": "link", "url": url}:
-                return f'<a href="{html.escape(url)}">{html.escape(url)}</a>'
+                return f'<a href="{html.escape(transform_url(url))}">{html.escape(url)}</a>'
 
             case {"type": "image", "source": source, "alt": alt}:
-                if source.startswith("$"):
-                    source = Upload.objects.filter(ident=source[1:]).first()
-
-                    if source is not None:
-                        source = source.path
-
-                    else:
-                        source = ""
-
-                return f'<img src="{html.escape(source)}" alt="{self.flatten_inline(alt)}"/>'
+                return f'<img src="{html.escape(transform_url(source))}" alt="{self.flatten_inline(alt)}"/>'
 
             case {"type": "raw", "content": content}:
                 return content
