@@ -1,4 +1,0 @@
-- Profiles
-- Images
-- Components
-- Templates?????
